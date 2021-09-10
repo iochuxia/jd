@@ -2,9 +2,8 @@
 京东保价
 更新时间：2021-9-10
 
-18 1 * * * jd_price.js
+18 1 * * * jd_price.js, tag=京东保价, enabled=true
 */
-const $ = new Env("京东保价")
 let common = require("./function/common");
 let jsdom = require("jsdom");
 let $ = new common.env('京东保价');
