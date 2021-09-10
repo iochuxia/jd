@@ -6,8 +6,8 @@
 ## exprot jd_jx_factory=10  #如需增加被助力账号,在这边修改人数
 18 1 * * * jd_jx_factory.js
 */
-const $ = new Env("京喜工厂开团助力")
 let common = require("./function/common");
+let $ = new common.env('京喜工厂开团助力');
 let min = 3,
     help = $.config[$.filename(__filename)] || Math.min(min, $.config.JdMain) || min;
 $.setOptions({
