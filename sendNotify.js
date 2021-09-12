@@ -15,6 +15,8 @@ export BEANCHANGE_PERSENT="10"
 export NOTIFY_NOCKFALSE="true"
 ## 服务器空数据等错误不触发通知
 export CKNOWARNERROR="true"
+## 屏蔽青龙登陆成功通知，登陆失败不屏蔽
+export NOTIFY_NOLOGINSUCCESS="true"
 ## 通知底部显示
 export NOTIFY_AUTHOR="来源于：https://github.com/KingRan/JD-Scripts"
  
@@ -184,23 +186,13 @@ if (process.env.PUSH_PLUS_USER) {
  * @param author 作者仓库等信息  例：`本通知 By：https://github.com/whyour/qinglong`
  * @returns {Promise<unknown>}
  */
- 
+let strTitle="";
 let ShowRemarkType="1";
 let Notify_CompToGroup2="false";
 let Notify_NoCKFalse="false";
+let Notify_NoLoginSuccess="false";
 let UseGroup2=false;
 let strAuthor="";
-
-if (process.env.NOTIFY_COMPTOGROUP2) {
-  Notify_CompToGroup2 = process.env.NOTIFY_COMPTOGROUP2;
-}
-if (process.env.NOTIFY_NOCKFALSE) {
-  Notify_NoCKFalse= process.env.NOTIFY_NOCKFALSE;
-}
-if (process.env.NOTIFY_AUTHOR) {
-  strAuthor= process.env.NOTIFY_AUTHOR;
-}
-
 const {getEnvs} = require('./ql');
 const fs = require('fs');
 let strCKFile = './CKName_cache.json';
@@ -219,9 +211,22 @@ let boolneedUpdate=false;
 async function sendNotify(text, desp, params = {}, author = '\n\n本通知 ') {
   console.log(`开始发送通知...`);
   try {
-	  
+	UseGroup2=false;
+	strTitle="";
+	if (process.env.NOTIFY_COMPTOGROUP2) {
+	  Notify_CompToGroup2 = process.env.NOTIFY_COMPTOGROUP2;
+	}
+	if (process.env.NOTIFY_NOCKFALSE) {
+	  Notify_NoCKFalse= process.env.NOTIFY_NOCKFALSE;
+	}
+	if (process.env.NOTIFY_AUTHOR) {
+	  strAuthor= process.env.NOTIFY_AUTHOR;
+	}
 	if (process.env.SHOWREMARKTYPE) {
 	  ShowRemarkType = process.env.SHOWREMARKTYPE;
+	}
+	if (process.env.NOTIFY_NOLOGINSUCCESS) {
+	  Notify_NoLoginSuccess = process.env.NOTIFY_NOLOGINSUCCESS;
 	}
 
 	if(text.indexOf("忘了种植") != -1){
@@ -245,7 +250,7 @@ async function sendNotify(text, desp, params = {}, author = '\n\n本通知 ') {
 	
 	//检查黑名单屏蔽通知  
     const notifySkipList = process.env.NOTIFY_SKIP_LIST ? process.env.NOTIFY_SKIP_LIST.split('&') : [];
-    const titleIndex = notifySkipList.findIndex((item) => item === text);
+    let titleIndex = notifySkipList.findIndex((item) => item === text);
 
     if (titleIndex !== -1) {
       console.log(`${text} 在推送黑名单中，已跳过推送`);
@@ -256,18 +261,51 @@ async function sendNotify(text, desp, params = {}, author = '\n\n本通知 ') {
 	
 	const notifyGroupList = process.env.NOTIFY_GROUP_LIST ? process.env.NOTIFY_GROUP_LIST.split('&') : [];
     const titleIndex2 = notifyGroupList.findIndex((item) => item === text);
-	if(Notify_CompToGroup2=="true"){
-		if(text.indexOf("已可领取") != -1){
-			console.log(`领取信息推送至群组2`);
-			UseGroup2=true;
+	
+	
+	if(text.indexOf("已可领取") != -1){		
+		if(desp.indexOf("水果") != -1){			
+			strTitle="东东农场";
+		} else {
+			strTitle="东东萌宠";
 		}	
-		if(text=="京喜工厂"){
-			if(desp.indexOf("元造进行兑换") != -1){
-				console.log(`京喜工厂领取信息推送至群组2`);
-				UseGroup2=true;
-			}		
+	}	
+	
+	if(text=="京喜工厂"){			
+		if(desp.indexOf("元造进行兑换") != -1){
+			strTitle="京喜工厂";								
+		}		
+	}
+	
+	if(strTitle){
+		const notifyRemindList = process.env.NOTIFY_NOREMIND ? process.env.NOTIFY_NOREMIND.split('&') : [];
+		titleIndex = notifyRemindList.findIndex((item) => item === strTitle);
+		
+		if (titleIndex !== -1) {
+		  console.log(`${text} 在领取信息黑名单中，已跳过推送`);
+		  return;
 		}
 	}
+	if(strTitle && Notify_CompToGroup2=="true"){
+		console.log(`${strTitle}领取信息推送至群组2`);
+		UseGroup2=true;
+	}
+	if(Notify_CompToGroup2!="true" && Notify_CompToGroup2!="false"){
+		const notifyCompToGroup2 = process.env.Notify_CompToGroup2 ? process.env.Notify_CompToGroup2.split('&') : [];
+		titleIndex = notifyCompToGroup2.findIndex((item) => item === strTitle);	
+		if(titleIndex !== -1){
+			console.log(`${strTitle}领取信息推送至群组2`);
+			UseGroup2=true;
+		}
+	}
+	
+	if(Notify_NoLoginSuccess=="true"){		
+		if(desp.indexOf("登陆成功") != -1){
+			console.log(`登陆成功不推送`);
+			return;
+		}
+	}
+	
 	if (titleIndex2 !== -1) {
 		console.log(`${text} 在群组2推送名单中，初始化群组推送`);
 		UseGroup2=true;
