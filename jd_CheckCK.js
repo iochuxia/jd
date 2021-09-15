@@ -185,7 +185,7 @@ if (process.env.CKNOWARNERROR) {
         }
 		
 		if(NoWarnError== "true"){
-			OErrorMessage="NoWarn!";
+			OErrorMessage="";
 		}
 		
         if ($.isNode() && (EnableMessage || DisableMessage || OErrorMessage || CKAlwaysNotify == "true")) {
@@ -218,7 +218,8 @@ function TotalBean() {
             try {
                 if (err) {
                     $.logErr(err)
-                    $.error = `${$.name} :` + `${JSON.stringify(err)}\n`;
+					$.nickName = decodeURIComponent($.UserName);
+                    $.error = `${$.nickName} :` + `${JSON.stringify(err)}\n`;
                 } else {
                     if (data) {
                         data = JSON.parse(data);
@@ -241,8 +242,9 @@ function TotalBean() {
                     }
                 }
             } catch (e) {
+				$.nickName = decodeURIComponent($.UserName);
                 $.logErr(e)
-                $.error = `检测出错，不做变动\n`;
+                $.error = `${$.nickName} : 检测出错，不做变动\n`;
             } finally {
                 resolve();
             }

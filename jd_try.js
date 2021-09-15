@@ -38,6 +38,7 @@ $.completeNum = 0;
 $.getNum = 0;
 $.try = true;
 $.sentNum = 0;
+$.cookiesArr = []
 $.innerKeyWords =
     [
         "幼儿园", "教程", "英语", "辅导", "培训",
@@ -73,7 +74,7 @@ let args_xh = {
      * 可设置环境变量：JD_TRY_TABID，用@进行分隔
      * 默认为 1 到 5
      * */
-    tabId: process.env.JD_TRY_TABID && process.env.JD_TRY_TABID.split('@').map(Number) || [1],
+    tabId: process.env.JD_TRY_TABID && process.env.JD_TRY_TABID.split('@').map(Number) || [1,2,3,4,5,6,7,8,9,10],
     /*
      * 试用商品标题过滤，黑名单，当标题存在关键词时，则不加入试用组
      * 当白名单和黑名单共存时，黑名单会自动失效，优先匹配白名单，匹配完白名单后不会再匹配黑名单，望周知
@@ -229,14 +230,17 @@ let args_xh = {
                     await showMsg()
                 }
             }
+            if($.isNode()){
+                if($.index % args_xh.sendNum === 0){
+                    $.sentNum++;
+                    console.log(`正在进行第 ${$.sentNum} 次发送通知，发送数量：${args_xh.sendNum}`)
+                    await $.notify.sendNotify(`${$.name}`, `${notifyMsg}`)
+                    notifyMsg = "";
+                }
+            }
         }
         if($.isNode()){
-            if($.index % args_xh.sendNum === 0){
-                $.sentNum++;
-                console.log(`正在进行第 ${$.sentNum} 次发送通知，发送数量：${args_xh.sendNum}`)
-                await $.notify.sendNotify(`${$.name}`, `${notifyMsg}`)
-                notifyMsg = "";
-            } else if(($.cookiesArr.length - ($.sentNum * args_xh.sendNum)) < args_xh.sendNum){
+            if(($.cookiesArr.length - ($.sentNum * args_xh.sendNum)) < args_xh.sendNum){
                 console.log(`正在进行最后一次发送通知，发送数量：${($.cookiesArr.length - ($.sentNum * args_xh.sendNum))}`)
                 await $.notify.sendNotify(`${$.name}`, `${notifyMsg}`)
                 notifyMsg = "";
@@ -472,6 +476,8 @@ function try_apply(title, activityId){
                     } else if(data.code === "-131"){
                         console.log(data.message)   // 申请次数上限。
                         $.isLimit = true;
+                    } else if(data.code === "-113"){
+                        console.log(data.message)   // 操作不要太快哦！
                     } else {
                         console.log("申请失败", data)
                     }
