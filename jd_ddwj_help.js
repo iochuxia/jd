@@ -1,6 +1,6 @@
 
 /*
-cron "20 0 * * *" zy_ddwj_Mod.js, tag:东东玩家_Mod
+cron "5 0 * * *" jd_ddwj_help.js, tag:东东玩家互助_Mod
  */
 
 //ccwav Mod，版权在Ariszy.我只是Fix功能性Bug.
@@ -21,7 +21,7 @@ cron "20 0 * * *" script-path= https://raw.githubusercontent.com/Ariszy/Private-
 东东玩家 = type=cron,script-path= https://raw.githubusercontent.com/Ariszy/Private-Script/master/JD/zy_ddwj.js, cronexpr="20 0 * * *", timeout=3600, enable=true
  */
 
-const $ = new Env('东东玩家')
+const $ = new Env('东东玩家互助')
 	const notify = $.isNode() ? require('./sendNotify') : '';
 cookiesArr = []
 CodeArr = []
@@ -68,14 +68,14 @@ var hour = ''
 		});
 		return;
 	}
+	console.log(`开始获取互助码.......\n`);
 	for (let i = 0; i < cookiesArr.length; i++) {
 		cookie = cookiesArr[i];
 		strUnlockMessage = "";
 		$.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
-			message = ''
-			$.isLogin = true;
-		$.index = i + 1;
-		console.log(`\n******开始【京东账号${$.index}】${$.nickName || $.UserName}*********\n`);
+		message = ''
+		$.isLogin = true;
+		$.index = i + 1;		
 		if (!$.isLogin) {
 			$.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, {
 				"open-url": "https://bean.m.jd.com/bean/signIndex.action"
@@ -85,20 +85,21 @@ var hour = ''
 				await notify.sendNotify(`${$.name}cookie已失效 - ${$.UserName}`, `京东账号${$.index} ${$.UserName}\n请重新登录获取cookie`);
 			}
 			continue
-		}
-
+		}		
 		await gethelpcode()
-		await getlist()
-		await getsecretp()
-		await getfeedtoken()
-		await Ariszy()
-		await zy()
-		//await userScore()
-		//if (strUnlockMessage) {
-		//strMessage += `【京东账号${$.index}${$.nickName || $.UserName}】` + strUnlockMessage;
-		//}
 	}
-	
+	console.log(`开始执行互助.......\n`);
+	for (let i = 0; i < cookiesArr.length; i++) {
+		cookie = cookiesArr[i];
+		$.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
+			message = ''
+			$.isLogin = true;
+		$.index = i + 1;
+		console.log(`\n******【京东账号${$.index}】${$.nickName || $.UserName}*********\n`);
+		await getsecretp()
+		await control()
+		//await userScore()
+	}
 
 	//console.log(strMessage);
 	//if ($.isNode()) {
@@ -130,81 +131,6 @@ function PostRequest(uri, body) {
 	};
 }
 
-async function doTask() {
-	const body = `functionId=funny_collectScore&body=%7B%22taskId%22%3A${taskid}%2C%22taskToken%22%3A%22${token}%22%2C%22ss%22%3A%22%7B%5C%22extraData%5C%22%3A%7B%5C%22log%5C%22%3A%5C%22%5C%22%2C%5C%22sceneid%5C%22%3A%5C%22HWJhPageh5%5C%22%7D%2C%5C%22secretp%5C%22%3A%5C%22${secretp}%5C%22%2C%5C%22random%5C%22%3A%5C%2243136926%5C%22%7D%22%2C%22actionType%22%3A1%7D&client=wh5&clientVersion=1.0.0&uuid=0bcbcdb2a68f16cf9c9ad7c9b944fd141646a849&appid=o2_act`
-		const MyRequest = PostRequest(`advId=funny_collectScore`, body)
-		//$.log(JSON.stringify(MyRequest))
-		return new Promise((resolve) => {
-			$.post(MyRequest, async(error, response, data) => {
-				try {
-					const result = JSON.parse(data)
-						if (logs) {
-							$.log(data)
-						}
-						if (result.code == 0) {
-							if (result.data.bizCode == 103) {
-								bolTaskFail = false;
-								console.log("任务已完成，跳过...");
-								await $.wait(1000)
-							} else {
-								if (result.data.success) {
-									bolTaskFail = false;
-									console.log(result.data.bizMsg + "\n")
-								} else {
-									console.log("任务失败: " + result.data.bizMsg + "\n")
-								}
-								await $.wait(1000)
-							}
-						} else {
-							$.log(result.msg + "\n")
-						}
-
-				} catch (e) {
-					$.logErr(e, response);
-				}
-				finally {
-					resolve();
-				}
-			})
-		})
-}
-async function DoTask() {
-	const body = `functionId=funny_collectScore&body=%7B%22taskId%22%3A${taskid}%2C%22taskToken%22%3A%22${token}%22%2C%22ss%22%3A%22%7B%5C%22extraData%5C%22%3A%7B%5C%22log%5C%22%3A%5C%22%5C%22%2C%5C%22sceneid%5C%22%3A%5C%22HWJhPageh5%5C%22%7D%2C%5C%22secretp%5C%22%3A%5C%22${secretp}%5C%22%2C%5C%22random%5C%22%3A%5C%2243136926%5C%22%7D%22%2C%22actionType%22%3A0%7D&client=wh5&clientVersion=1.0.0&uuid=0bcbcdb2a68f16cf9c9ad7c9b944fd141646a849&appid=o2_act`
-		const MyRequest = PostRequest(`advId=funny_collectScore`, body)
-		return new Promise((resolve) => {
-			$.post(MyRequest, async(error, response, data) => {
-				try {
-					const result = JSON.parse(data)
-						if (logs) {
-							$.log(data)
-						}
-						if (result.code == 0) {
-							if (result.data.bizCode == 103) {
-								bolTaskFail = false;
-								console.log("任务已完成，跳过...");
-								await $.wait(1000)
-							} else {
-								if (result.data.success) {
-									bolTaskFail = false;
-									console.log(result.data.bizMsg + "\n")
-									await $.wait(4000)
-								} else {
-									if (result.data.bizMsg != "这个任务做完啦！" && result.data.bizMsg != "哎呀，加入品牌会员才能获得奖励哦") {
-										console.log("任务失败: " + result.data.bizMsg + "\n")
-									}
-									await $.wait(1000)
-								}
-							}
-						}
-				} catch (e) {
-					$.logErr(e, response);
-				}
-				finally {
-					resolve();
-				}
-			})
-		})
-}
 async function unlock() {
 	const body = `functionId=funny_raise&body=%7B%22id%22%3A${userUnlockedPlaceNum}%2C%22ss%22%3A%22%7B%5C%22extraData%5C%22%3A%7B%5C%22log%5C%22%3A%5C%22%5C%22%2C%5C%22sceneid%5C%22%3A%5C%22HWJhPageh5%5C%22%7D%2C%5C%22secretp%5C%22%3A%5C%22${secretp}%5C%22%2C%5C%22random%5C%22%3A%5C%2276834380%5C%22%7D%22%7D&client=wh5&clientVersion=1.0.0&uuid=0bcbcdb2a68f16cf9c9ad7c9b944fd141646a849&appid=o2_act`
 		//$.log(secretp)
@@ -277,48 +203,6 @@ async function getsecretp() {
 			})
 		})
 }
-async function Ariszy() {
-	for (let j = 0; j < listtokenArr.length; j++) {
-		token = list2tokenArr[j]
-			taskid = listtokenArr[j].match(/\d+/)
-			$.log("任务：" + taskName[j])
-			bolTaskFail = true;
-		await doTask()
-		if (taskid == 2 || taskid == 4 || taskid == 8 || taskid == 14) {
-			await DoTask()
-		}
-
-	}
-
-}
-async function scans() {
-	for (let j = 0; j < list0tokenArr.length; j++) {
-		token = list1tokenArr[j];
-		taskid = list0tokenArr[j].match(/\d+/)
-			//$.log("TaskId：" + taskid)
-			//$.log("Token：" + token)
-			$.log("任务：" + taskName[j])
-			bolTaskFail = true;
-		await doTask()
-		//if (bolTaskFail) {
-		await DoTask()
-		//}
-	}
-}
-async function zy() {
-	listtokenArr.splice(0, listtokenArr.length);
-	list2tokenArr.splice(0, list2tokenArr.length);
-	//list0tokenArr.splice(0,list0tokenArr.length);
-	//list1tokenArr.splice(0,list1tokenArr.length);
-}
-async function Zy() {
-	for (let i = 0; i < 7; i++) {
-		await scan()
-		await scans()
-		list0tokenArr.splice(0, list0tokenArr.length);
-		list1tokenArr.splice(0, list1tokenArr.length);
-	}
-}
 async function control() {
 	for (let i = 0; i < list1tokenArr.distinct().length; i++) {
 		helpcode = list1tokenArr[i]
@@ -352,204 +236,6 @@ async function dosupport() {
 								console.log(result.data.bizMsg + "\n")
 								}
 							}
-						}
-				} catch (e) {
-					$.logErr(e, response);
-				}
-				finally {
-					resolve();
-				}
-			})
-		})
-}
-async function getlist() {
-	const MyRequest = PostRequest(`?advId=funny_getTaskDetail`, `functionId=funny_getTaskDetail&body=%7B%22taskId%22%3A%22%22%2C%22appSign%22%3A%221%22%7D&client=wh5&clientVersion=1.0.0&uuid=0bcbcdb2a68f16cf9c9ad7c9b944fd141646a849&appid=o2_act`)
-		return new Promise((resolve) => {
-			$.post(MyRequest, async(error, response, data) => {
-				try {
-					const result = JSON.parse(data)
-						if (logs) {
-							$.log(data)
-						}
-						if (result.code == 0) {
-							console.log("解析任务列表....\n")
-
-							let list2 = result.data.result.taskVos.find(item => item.taskId == 2)
-								let maxTimes2 = list2.maxTimes
-								for (let i = 0; i < maxTimes2; i++) {
-									if (list2.shoppingActivityVos[i].status != 2) {
-										listtokenArr.push(2 + list2.shoppingActivityVos[i].taskToken)
-										list2tokenArr.push(list2.shoppingActivityVos[i].taskToken)
-										taskName.push(list2.shoppingActivityVos[i].title)
-									}
-
-								}
-
-								let list3 = result.data.result.taskVos.find(item => item.taskId == 3)
-								let maxTimes3 = list3.maxTimes
-								for (let i = 0; i < maxTimes3; i++) {
-									if (list3.shoppingActivityVos[i].status != 2) {
-										listtokenArr.push(3 + list3.shoppingActivityVos[i].taskToken)
-										list2tokenArr.push(list3.shoppingActivityVos[i].taskToken)
-										taskName.push(list3.shoppingActivityVos[i].title)
-									}
-								}
-
-								let list4 = result.data.result.taskVos.find(item => item.taskId == 4)
-								let maxTimes4 = list4.maxTimes
-								for (let i = 0; i < maxTimes4; i++) {
-									if (list4.browseShopVo[i].status != 2) {
-										listtokenArr.push(4 + list4.browseShopVo[i].taskToken)
-										list2tokenArr.push(list4.browseShopVo[i].taskToken)
-										taskName.push(list4.browseShopVo[i].shopName)
-									}
-									//$.log(list4.productInfoVos[i].taskToken)
-								}
-
-								let list6 = result.data.result.taskVos.find(item => item.taskId == 6)
-								let maxTimes6 = list6.maxTimes
-								for (let i = 0; i < maxTimes6; i++) {
-									if (list6.brandMemberVos[i].status != 2) {
-										listtokenArr.push(6 + list6.brandMemberVos[i].taskToken)
-										list2tokenArr.push(list6.brandMemberVos[i].taskToken)
-										taskName.push(list6.brandMemberVos[i].title)
-									}
-									//$.log(list5.followShopVo[i].taskToken)
-								}
-
-								let list7 = result.data.result.taskVos.find(item => item.taskId == 7)
-								let maxTimes7 = list7.maxTimes
-								for (let i = 0; i < maxTimes7; i++) {
-									if (list7.shoppingActivityVos[i].status != 2) {
-										listtokenArr.push(7 + list7.shoppingActivityVos[i].taskToken)
-										list2tokenArr.push(list7.shoppingActivityVos[i].taskToken)
-										taskName.push(list7.shoppingActivityVos[i].title)
-									}
-									//$.log(list5.followShopVo[i].taskToken)
-								}
-								let list8 = result.data.result.taskVos.find(item => item.taskId == 8)
-								let maxTimes8 = list8.maxTimes
-								for (let i = 0; i < maxTimes8; i++) {
-									if (list8.shoppingActivityVos[i].status != 2) {
-										listtokenArr.push(8 + list8.shoppingActivityVos[i].taskToken)
-										list2tokenArr.push(list8.shoppingActivityVos[i].taskToken)
-										taskName.push(list8.shoppingActivityVos[i].title)
-									}
-									//$.log(list5.followShopVo[i].taskToken)
-								}
-								//$.log(JSON.stringify(listtokenArr))
-								let list13 = result.data.result.taskVos.find(item => item.taskId == 13)
-								let maxTimes13 = list13.maxTimes
-								for (let i = 0; i < maxTimes13; i++) {
-									if (list13.followShopVo[i].status != 2) {
-										listtokenArr.push(13 + list13.followShopVo[i].taskToken)
-										list2tokenArr.push(list13.followShopVo[i].taskToken)
-										taskName.push(list13.followShopVo[i].shopName)
-									}
-									//$.log(list5.followShopVo[i].taskToken)
-								}
-								let list14 = result.data.result.taskVos.find(item => item.taskId == 14)
-								let maxTimes14 = list14.maxTimes
-								for (let i = 0; i < maxTimes14; i++) {
-									if (list14.shoppingActivityVos[i].status != 2) {
-										listtokenArr.push(14 + list14.shoppingActivityVos[i].taskToken)
-										list2tokenArr.push(list14.shoppingActivityVos[i].taskToken)
-										taskName.push(list14.shoppingActivityVos[i].title)
-									}
-									//$.log(list5.followShopVo[i].taskToken)
-								}
-								let list15 = result.data.result.taskVos.find(item => item.taskId == 15)
-								let maxTimes15 = list15.maxTimes
-								for (let i = 0; i < maxTimes15; i++) {
-									if (list15.shoppingActivityVos[i].status != 2) {
-										listtokenArr.push(15 + list15.shoppingActivityVos[i].taskToken)
-										list2tokenArr.push(list15.shoppingActivityVos[i].taskToken)
-										taskName.push(list15.shoppingActivityVos[i].title)
-									}
-									//$.log(list5.followShopVo[i].taskToken)
-								}
-								let list16 = result.data.result.taskVos.find(item => item.taskId == 16)
-								let maxTimes16 = list16.maxTimes
-								for (let i = 0; i < maxTimes16; i++) {
-									if (list16.shoppingActivityVos[i].status != 2) {
-										listtokenArr.push(16 + list16.shoppingActivityVos[i].taskToken)
-										list2tokenArr.push(list16.shoppingActivityVos[i].taskToken)
-										taskName.push(list16.shoppingActivityVos[i].title)
-									}
-									//$.log(list5.followShopVo[i].taskToken)
-								}
-						} else {
-							$.log(result.data.bizMsg + "\n")
-						}
-				} catch (e) {
-					$.logErr(e, response);
-					$.log("Debug:" + data);
-				}
-				finally {
-					resolve();
-				}
-			})
-		})
-}
-async function scan() {
-	const MyRequest = PostRequest(``, `functionId=healthyDay_getHomeData&body=%7B%22appId%22:%221ElBTx6o%22,%22taskToken%22:%22%22,%22channelId%22:1%7D&client=wh5&clientVersion=1.0.0`)
-		return new Promise((resolve) => {
-			$.post(MyRequest, async(error, response, data) => {
-				try {
-					const result = JSON.parse(data)
-						if (logs) {
-							$.log(data)
-						}
-						if (result.code == 0) {
-
-							let list6 = result.data.result.taskVos.find(item => item.taskId == 6)
-								for (let i = 0; i < list4.productInfoVos.length; i++) {
-									list0tokenArr.push(6 + list6.productInfoVos[i].taskToken)
-									list1tokenArr.push(list4.productInfoVos[i].taskToken)
-								}
-
-						} else {
-							$.log(result.data.bizMsg + "\n")
-						}
-				} catch (e) {
-					$.logErr(e, response);
-				}
-				finally {
-					resolve();
-				}
-			})
-		})
-}
-async function getfeedtoken() {
-	for (let i = 9; i < 13; i++) {
-		await getfeedlist(i)
-	}
-}
-async function getfeedlist(Taskid) {
-	const Body = `functionId=funny_getFeedDetail&body=%7B%22taskId%22%3A%22${Taskid}%22%7D&client=wh5&clientVersion=1.0.0&appid=o2_act`
-		const MyRequest = PostRequest(`?advId=funny_getFeedDetail`, Body)
-		return new Promise((resolve) => {
-			$.post(MyRequest, async(error, response, data) => {
-				try {
-					const result = JSON.parse(data)
-						if (logs) {
-							$.log(data)
-						}
-						if (result.data.bizCode == 0) {
-							let lists = result.data.result.addProductVos.find(item => item.taskId == Taskid);
-							let maxTimes = lists.maxTimes;
-							if (lists.status != 2) {
-								for (let i = 0; i < maxTimes; i++) {
-									listtokenArr.push(Taskid + lists.productInfoVos[i].taskToken);
-									list2tokenArr.push(lists.productInfoVos[i].taskToken);
-									taskName.push("加购" + lists.productInfoVos[i].skuName)
-
-									//$.log(JSON.stringify((list2tokenArr)))
-								}
-							}
-							//await zy()
-						} else {
-							$.log(result.data.bizMsg + "\n")
 						}
 				} catch (e) {
 					$.logErr(e, response);
@@ -604,7 +290,7 @@ async function userScore() {
 							let userScore = result.data.result.homeMainInfo.raiseInfo.remainScore;
 							let turn = Math.floor(userScore / (result.data.result.homeMainInfo.raiseInfo.nextLevelScore - result.data.result.homeMainInfo.raiseInfo.curLevelStartScore));
 							if (turn > 0) {
-								$.log("共有好玩币：" + userScore + ";开始解锁�" + turn + "次\n")
+								$.log("共有好玩币：" + userScore + ";开始解锁" + turn + "次\n")
 
 								for (let i = 0; i < turn; i++) {
 									await unlock()
@@ -626,28 +312,6 @@ async function userScore() {
 				}
 			})
 		})
-}
-//showmsg
-//boxjs设置tz=1，在12点<=20和23点>=40时间段通知，其余时间打印日志
-
-async function showmsg() {
-	if (tz == 1) {
-		if ($.isNode()) {
-			if ((hour == 12 && minute <= 20) || (hour == 23 && minute >= 40)) {
-				await notify.sendNotify($.name, message)
-			} else {
-				$.log(message)
-			}
-		} else {
-			if ((hour == 12 && minute <= 20) || (hour == 23 && minute >= 40)) {
-				$.msg(zhiyi, '', message)
-			} else {
-				$.log(message)
-			}
-		}
-	} else {
-		$.log(message)
-	}
 }
 function safeGet(data) {
 	try {
