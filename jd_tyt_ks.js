@@ -2,6 +2,7 @@
 分享到QQ查看邀请码 packetId就是
 #自定义变量
 export tytpacketId=""
+ [task_local]
 #推一推助力码
 0 6-23/4 * * * jd_tyt.js, tag=推一推, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
 注意：助力码每天会变，旧的不可用。
