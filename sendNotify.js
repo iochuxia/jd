@@ -232,7 +232,7 @@ async function sendNotify(text, desp, params = {}, author = '\n\n本通知 By cc
             UseGroup2 = true;
         }
         if (Notify_CompToGroup2 != "true" && Notify_CompToGroup2 != "false") {
-            const notifyCompToGroup2 = process.env.Notify_CompToGroup2 ? process.env.Notify_CompToGroup2.split('&') : [];
+            const notifyCompToGroup2 = Notify_CompToGroup2 ? Notify_CompToGroup2.split('&') : [];
             titleIndex = notifyCompToGroup2.findIndex((item) => item === strTitle);
             if (titleIndex !== -1) {
                 console.log(`${strTitle}领取信息推送至群组2`);
