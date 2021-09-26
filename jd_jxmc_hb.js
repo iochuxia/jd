@@ -17,6 +17,7 @@ const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 const JXUserAgent =  $.isNode() ? (process.env.JX_USER_AGENT ? process.env.JX_USER_AGENT : ``):``;
 $.inviteCodeList = [];
 $.inviteCodeList_hb = [];
+let flag_hb = true
 let cookiesArr = [];
 $.appId = 10028;
 $.helpCkList = [];
@@ -59,6 +60,7 @@ let token ='';
     await pasture();
     await $.wait(2000);
   }
+  if (flag_hb) {
   console.log('\n##################开始账号内互助(红包)#################\n');
   await getShareCode('jxmc_hb.json')
   $.inviteCodeList_hb = [...($.inviteCodeList_hb || []), ...($.shareCode || [])]
@@ -75,6 +77,7 @@ let token ='';
       console.log(`\n${$.UserName}去助力${$.oneCodeInfo.use},助力码：${$.oneCodeInfo.code}\n`);
       await takeGetRequest('help_hb');
       await $.wait(2000);
+	 }
     }
   }
   console.log('\n##################开始账号内互助#################\n');
@@ -178,7 +181,9 @@ async function pasture() {
       }
       $.crowInfo = $.homeInfo.cow;
     }
-    await takeGetRequest('GetInviteStatus')
+    if (flag_hb) {
+      await takeGetRequest('GetInviteStatus')
+    }
     $.GetVisitBackInfo = {};
     await $.wait(1000);
   } catch (e) {
@@ -431,6 +436,9 @@ function dealReturn(type, data) {
                 console.log(`红包邀请码:${data.data.sharekey}`);
                 $.inviteCodeList_hb.push({'use':$.UserName,'code':data.data.sharekey,'max':false});
             }
+		} else if(data.ret === 2704){
+            console.log('红包今天领完了,跳过红包相关')
+            flag_hb = false
         } else {
             console.log(`异常：${JSON.stringify(data)}\n`);
         }
