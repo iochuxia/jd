@@ -9,7 +9,7 @@ const notify = $.isNode() ? require('./sendNotify') : '';
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
 //IOS等用户直接用NobyDa的jd cookie
 let cookiesArr = [], cookie = '';
-$.shareCodes = [];
+$.shareCodesList = [];
 if ($.isNode()) {
   Object.keys(jdCookieNode).forEach((item) => {
     cookiesArr.push(jdCookieNode[item])
@@ -45,6 +45,18 @@ if ($.isNode()) {
         continue
       }
       await main()
+	 }
+    }
+    if ($.shareCodesList && $.shareCodesList.length) {
+        console.log(`\n==========开始账号内互助==========\n`);
+        for (let j = 0; j < cookiesArr.length; j++) {
+            cookie = cookiesArr[j];
+            $.UserName = decodeURIComponent(cookie.match(/pt_pin=([^; ]+)(?=;?)/) && cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1])
+            for (let item of $.shareCodesList) {
+                console.log(`账号${$.UserName} 去助力 ${item}`)
+                await await doInteractiveAssignment($.projectId, $.encryptAssignmentId, item)
+                await $.wait(1000)
+            }
     }
   }
 })().catch((e) => { $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '') }).finally(() => { $.done(); })
@@ -134,6 +146,12 @@ function queryInteractiveInfo(projectId) {
           if (data) {
             data = JSON.parse(data);
             $.taskList = data.assignmentList
+			$.encryptAssignmentId = $.taskList[1].encryptAssignmentId
+            if ($.taskList[1].userVerificationInfo.completionCnt < $.taskList[1].assignmentTimesLimit) {
+              $.shareCodes = $.taskList[1].ext.assistTaskDetail.itemId
+              console.log("【您的助力码为】" + $.shareCodes)
+              $.shareCodesList.push($.shareCodes)
+             }
           } else {
             console.log("没有返回数据")
           }
