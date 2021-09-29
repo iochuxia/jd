@@ -54,7 +54,7 @@ if ($.isNode()) {
       $.index = i + 1;
       $.isLogin = true;
       $.nickName = '';
-      $.finish = false;
+      $.canRun = true;
       await TotalBean();
       console.log(`\n开始【京东账号${$.index}】${$.nickName || $.UserName}\n`);
       if (!$.isLogin) {
@@ -77,6 +77,7 @@ if ($.isNode()) {
 async function main() {
   try {
     await getNewMissions();//领取任务
+	if (!$.canRun) return
     await getNewMissions();//重新查询任务
     await missions();
     await grantAward();
@@ -141,8 +142,8 @@ function getAwardFromMc(missionId) {
                 if (data.resultData.data) {
                   if (data.resultData.data.nextStatus) {
                     console.log(`\n奖励${data.resultData.data.opMsg}`)
-                  }
                 }
+				} 
               } else {
                 console.log(`其他情况：${JSON.stringify(data)}`)
               }
@@ -190,6 +191,9 @@ async function getNewMissions() {
                       }
                     }
                   }
+				} else {
+                console.log(`\n获取任务失败：${JSON.stringify(data)}`)
+                $.canRun = false
                 }
               } else {
                 console.log(`其他情况：${JSON.stringify(data)}`)
