@@ -24,7 +24,7 @@ http://apponlie.sahaj.cn
 收益：只看文章的话，跑满每日12000金币（1.2元），被限制阅读另说
 每满4000金币（4毛）微信自动提现
 
-cron 0 8-22/1 * * * https://github.com/KingRan/JD-Scripts/blob/main/jd_jysz.js
+cron 0 8-22/1 * * * https://raw.githubusercontent.com/KingRan/JD-Scripts/main/wx_jysz.js
 */
 
 const $ = new Env('微信_金银手指');
